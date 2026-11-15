@@ -36,5 +36,6 @@ if [ "${1:-}" = "--install" ]; then
 	exec curl -fsSL --fail "$INSTALL_SH_URL" | bash -s -- "$@"
 fi
 
-# Piped in bare (curl -fsSL ... | sudo bash): run install.sh from stdin.
-exec bash -s -- "$@"
+# Piped in bare (curl -fsSL ... | sudo bash): this script's stdin has already
+# been consumed as script text, so fetch install.sh and run it.
+exec curl -fsSL --fail "$INSTALL_SH_URL" | bash
