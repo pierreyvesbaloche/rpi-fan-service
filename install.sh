@@ -2,6 +2,8 @@
 
 SERVICE_NAME="rpi-fan"
 SERVICE_PATH="${RPI_FAN_SERVICE_PATH:-/etc/systemd/system/${SERVICE_NAME}.service}"
+REPO_URL="${RPI_FAN_REPO_URL:-https://github.com/pierreyvesbaloche/rpi-fan-service}"
+RAW_URL="${RPI_FAN_RAW_URL:-https://raw.githubusercontent.com/${REPO_URL#https://github.com/}/main}"
 
 printf "rpi-fan Python Service: Installer\n\n"
 
@@ -30,7 +32,7 @@ function fail {
 
 # --- Step 1: update the system and install required packages -------------
 MISSING_PKGS=()
-for PACKAGE in python3-pip python3-rpi.gpio python3-venv git; do
+for PACKAGE in python3-pip python3-rpi.gpio python3-venv git curl; do
 	printf "Checking for %s\n" "$PACKAGE"
 	dpkg -L "$PACKAGE" > /dev/null 2>&1
 	if [ "$?" -eq 1 ]; then
@@ -73,12 +75,22 @@ else
 		|| fail "Could not create the virtual environment."
 fi
 
-# --- Step 5: copy rpi-fan-custom.py from this repository into ~/tools -----
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)"
-SRC_PY="$SCRIPT_DIR/rpi-fan-custom.py"
-[ -f "$SRC_PY" ] || fail "Missing $SRC_PY (is this the rpi-fan repository?)"
-cp "$SRC_PY" "$TOOLS_DIR/"
-printf "Copied rpi-fan-custom.py to %s/\n" "$TOOLS_DIR"
+# --- Step 5: get rpi-fan-custom.py from this repository into ~/tools -----
+SCRIPT_DIR=""
+if [ -n "${BASH_SOURCE[0]:-}" ] && [ -f "${BASH_SOURCE[0]}" ]; then
+	# Executed as a file from a local checkout (./install.sh).
+	SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)"
+fi
+if [ -n "$SCRIPT_DIR" ] && [ -f "$SCRIPT_DIR/rpi-fan-custom.py" ]; then
+	cp "$SCRIPT_DIR/rpi-fan-custom.py" "$TOOLS_DIR/"
+	printf "Copied rpi-fan-custom.py to %s/\n" "$TOOLS_DIR"
+else
+	# Piped in as stdin (curl -fsSL ... | sudo bash): fetch the app from GitHub.
+	command -v curl > /dev/null 2>&1 || fail "curl is required for the one-line install."
+	printf "Downloading rpi-fan-custom.py from %s\n" "$RAW_URL"
+	curl -fsSL --fail -o "$TOOLS_DIR/rpi-fan-custom.py" "$RAW_URL/rpi-fan-custom.py" \
+		|| fail "Could not download rpi-fan-custom.py."
+fi
 
 # --- Steps 6-7: upgrade pip inside the virtual environment -----------------
 # (Activating the venv is implicit: its pip binary is used directly, which

@@ -24,6 +24,18 @@ based on the CPU temperature. Runs as a systemd service (`rpi-fan`).
 
 ## Installing
 
+### One-liner (no clone, fully automatic)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/pierreyvesbaloche/rpi-fan-service/main/curl.sh | sudo bash
+```
+
+This downloads the installer from the GitHub repository and runs the whole
+process unattended (packages, `~/tools` setup, virtual environment,
+`rpi-fan-custom.py` download, systemd service start).
+
+### Manual (clone first)
+
 ```bash
 git clone https://github.com/pierreyvesbaloche/rpi-fan-service.git
 cd rpi-fan-service
@@ -77,5 +89,6 @@ make check       # basic integrity checks
 |-----------------------|----------------------------------------------|
 | `rpi-fan-custom.py`  | The fan + LED controller application         |
 | `install.sh`         | Installer (root, `sudo ./install.sh`)        |
+| `curl.sh`            | One-line bootstrap for `curl ... | sudo bash` |
 | `uninstall.sh`       | Uninstaller (root, `sudo ./uninstall.sh`)    |
 | `Makefile`           | Convenience targets                           |
