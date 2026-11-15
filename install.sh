@@ -63,6 +63,10 @@ printf "Installing for user: %s (%s)\n" "$TARGET_USER" "$TARGET_HOME"
 
 TOOLS_DIR="$TARGET_HOME/tools"
 mkdir -p "$TOOLS_DIR"
+# The target user must own this directory before anything is written into it
+# by the user (virtual environment, application file): root cannot create it
+# on the user's behalf once the user has started writing.
+chown "$TARGET_USER" "$TOOLS_DIR"
 printf "Created tools folder: %s\n" "$TOOLS_DIR"
 
 # --- Step 4: create the virtual environment inside ~/tools ----------------
@@ -91,6 +95,7 @@ else
 	curl -fsSL --fail -o "$TOOLS_DIR/rpi-fan-custom.py" "$RAW_URL/rpi-fan-custom.py" \
 		|| fail "Could not download rpi-fan-custom.py."
 fi
+chown "$TARGET_USER" "$TOOLS_DIR/rpi-fan-custom.py"
 
 # --- Steps 6-7: upgrade pip inside the virtual environment -----------------
 # (Activating the venv is implicit: its pip binary is used directly, which
@@ -117,7 +122,6 @@ RestartSec=10
 [Install]
 WantedBy=multi-user.target
 EOF
-chown -R "$TARGET_USER" "$TOOLS_DIR"
 
 # --- Steps 9-10: reload the daemon and start the service ------------------
 printf "Reloading systemd daemon\n"
