@@ -67,6 +67,14 @@ sudo systemctl disable rpi-fan    # don't start at boot (if you used enable)
 
 ## Uninstalling
 
+One-liner (no clone needed):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/pierreyvesbaloche/rpi-fan-service/main/uninstall.sh | sudo bash
+```
+
+Or, from a local clone:
+
 ```bash
 sudo ./uninstall.sh
 ```
