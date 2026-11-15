@@ -91,7 +91,7 @@ run_as_user bash -c "'$VENV_DIR/bin/pip' install --upgrade pip" \
 printf "Installing service: %s\n" "$SERVICE_PATH"
 cat > "$SERVICE_PATH" << EOF
 [Unit]
-Description=Contrôleur Ventilateur et LED NXEZ
+Description=NXEZ Fan and LED Controller
 After=network.target
 
 [Service]

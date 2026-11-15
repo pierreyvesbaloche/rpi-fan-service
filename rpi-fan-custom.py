@@ -6,7 +6,7 @@ import signal
 import sys
 import RPi.GPIO as GPIO
 
-# --- CONFIGURATION DES BROCHES (HAT NXEZ) ---
+# --- PIN CONFIGURATION (HAT NXEZ) ---
 LED_MOSI = 17
 LED_SCLK = 4
 PIN_FAN = 18
@@ -17,11 +17,11 @@ GPIO.setup(LED_MOSI, GPIO.OUT)
 GPIO.setup(LED_SCLK, GPIO.OUT)
 GPIO.setup(PIN_FAN, GPIO.OUT)
 
-# Configuration du ventilateur en PWM (100 Hz)
+# Configure the fan in PWM mode (100 Hz)
 pwm_fan = GPIO.PWM(PIN_FAN, 100)
 pwm_fan.start(0)
 
-# --- FONCTIONS DE PILOTAGE DES LED (Bit-banging) ---
+# --- LED DRIVER FUNCTIONS (Bit-banging) ---
 def write_byte(val):
     for bit in range(7, -1, -1):
         GPIO.output(LED_MOSI, (val >> bit) & 1)
@@ -29,25 +29,25 @@ def write_byte(val):
         GPIO.output(LED_SCLK, GPIO.LOW)
 
 def send_multiple_colors(colors_list):
-    # Trame de démarrage (32 bits à 0)
+    # Start-of-frame (32 zero bits)
     for _ in range(4):
         write_byte(0x00)
     
-    # Envoi des couleurs pour les 4 LED (Luminosité globale réglée à 3)
+    # Send colors for the 4 LEDs (global brightness set to 3)
     for (r, g, b) in colors_list:
         write_byte(0xE0 | 3)  
-        write_byte(b)          # Bleu
-        write_byte(g)          # Vert
-        write_byte(r)          # Rouge
+        write_byte(b)          # Blue
+        write_byte(g)          # Green
+        write_byte(r)          # Red
         
-    # Trame de fin
+    # End-of-frame
     for _ in range(4):
         write_byte(0xFF)
 
-# --- FONCTION DE NETTOYAGE PROPRE ---
+# --- CLEAN EXIT FUNCTION ---
 def graceful_exit(signum, frame):
-    print("\nArrêt du service demandé : extinction des LED et nettoyage GPIO...")
-    # Éteindre explicitement les 4 LED
+    print("\nService stop requested: turning off LEDs and cleaning up GPIO...")
+    # Explicitly turn off the 4 LEDs
     send_multiple_colors([(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)])
     try:
         pwm_fan.stop()
@@ -56,11 +56,11 @@ def graceful_exit(signum, frame):
     GPIO.cleanup()
     sys.exit(0)
 
-# Intercepter les signaux d'arrêt (systemd stop -> SIGTERM, Ctrl+C -> SIGINT)
+# Intercept stop signals (systemd stop -> SIGTERM, Ctrl+C -> SIGINT)
 signal.signal(signal.SIGTERM, graceful_exit)
 signal.signal(signal.SIGINT, graceful_exit)
 
-# --- FONCTIONS DE TEMPÉRATURE ET DÉGRADÉ ---
+# --- TEMPERATURE AND GRADIENT FUNCTIONS ---
 def get_cpu_temp():
     try:
         with open("/sys/class/thermal/thermal_zone0/temp", "r") as temp_file:
@@ -103,8 +103,8 @@ def get_temperature_gradient(temp):
         
     return colors
 
-# --- BOUCLE PRINCIPALE ---
-print("Démarrage du service (Ventilateur + Dégradé 4 LED avec gestion des signaux)...")
+# --- MAIN LOOP ---
+print("Starting service (fan + 4 LED gradient with signal handling)...")
 while True:
     temp = get_cpu_temp()
     
@@ -120,4 +120,3 @@ while True:
     send_multiple_colors(led_colors)
     
     time.sleep(2)
-
