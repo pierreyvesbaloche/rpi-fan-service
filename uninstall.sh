@@ -35,9 +35,9 @@ if [ -f "$TARGET_HOME/tools/rpi-fan-custom.py" ]; then
 	rm -f "$TARGET_HOME/tools/rpi-fan-custom.py"
 fi
 
-if [ -d "$TARGET_HOME/rpi-fan-env" ]; then
-	printf "Removing virtual environment: %s/rpi-fan-env\n" "$TARGET_HOME"
-	rm -rf "$TARGET_HOME/rpi-fan-env"
+if [ -d "$TARGET_HOME/tools/rpi-fan-env" ]; then
+	printf "Removing virtual environment: %s/tools/rpi-fan-env\n" "$TARGET_HOME"
+	rm -rf "$TARGET_HOME/tools/rpi-fan-env"
 fi
 
 printf "Done!\n"

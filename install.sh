@@ -11,8 +11,8 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 function run_as_user {
-	# Run a command as the target user, keeping ownership of ~/rpi-fan-env
-	# and ~/tools with the user (never root).
+	# Run a command as the target user, keeping ownership of ~/tools
+	# (application + virtual environment) with the user (never root).
 	if command -v sudo > /dev/null 2>&1; then
 		sudo -u "$TARGET_USER" -- "$@"
 	elif [ "$(id -u)" -eq 0 ]; then
@@ -63,13 +63,13 @@ TOOLS_DIR="$TARGET_HOME/tools"
 mkdir -p "$TOOLS_DIR"
 printf "Created tools folder: %s\n" "$TOOLS_DIR"
 
-# --- Step 4: create the virtual environment at ~/rpi-fan-env -------------
-VENV_DIR="$TARGET_HOME/rpi-fan-env"
+# --- Step 4: create the virtual environment inside ~/tools ----------------
+VENV_DIR="$TOOLS_DIR/rpi-fan-env"
 if [ -x "$VENV_DIR/bin/python3" ]; then
 	printf "Virtual environment already exists: %s\n" "$VENV_DIR"
 else
 	printf "Creating virtual environment: %s\n" "$VENV_DIR"
-	run_as_user bash -c "cd '$TARGET_HOME' && python3 -m venv --system-site-packages rpi-fan-env" \
+	run_as_user bash -c "cd '$TOOLS_DIR' && python3 -m venv --system-site-packages rpi-fan-env" \
 		|| fail "Could not create the virtual environment."
 fi
 

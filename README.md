@@ -34,7 +34,7 @@ sudo ./install.sh
 
 1. `apt update` and install `python3-pip`, `python3-rpi.gpio`, `python3-venv`, `git`
 2. Create `~/tools`
-3. Create the virtual environment `~/rpi-fan-env` (`--system-site-packages`)
+3. Create the virtual environment `~/tools/rpi-fan-env` (`--system-site-packages`)
 4. Copy `rpi-fan-custom.py` into `~/tools/`
 5. Upgrade pip inside the virtual environment
 6. Write `/etc/systemd/system/rpi-fan.service`, tailored to the calling
@@ -60,7 +60,7 @@ sudo ./uninstall.sh
 ```
 
 Stops/disables the service, removes the unit file and the daemon state,
-then removes `~/tools/rpi-fan-custom.py` and the `~/rpi-fan-env`
+then removes `~/tools/rpi-fan-custom.py` and the `~/tools/rpi-fan-env`
 virtual environment.
 
 ## Make
