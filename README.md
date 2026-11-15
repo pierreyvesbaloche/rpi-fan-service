@@ -25,8 +25,8 @@ based on the CPU temperature. Runs as a systemd service (`rpi-fan`).
 ## Installing
 
 ```bash
-git clone https://github.com/<your-org>/rpi-fan.git
-cd rpi-fan
+git clone https://github.com/pierreyvesbaloche/rpi-fan-service.git
+cd rpi-fan-service
 sudo ./install.sh
 ```
 
